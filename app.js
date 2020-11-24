@@ -134,8 +134,16 @@ app.route('/links').get((req, res) => {
           if (err) {
             throw err;
           }
-          fs.mkdir('data');
-          fs.writeFile('data/data.csv', csv);
+
+          const makeFile = () => fs.writeFile('data/data.csv', csv, function(err) {
+            if(err) console.log(err)
+          });
+
+          if (!fs.existsSync('data')) {
+            mkdir('data', makeFile);
+          } else {
+            makeFile();
+          }
         });
 
         // if(i == 5)  break;
