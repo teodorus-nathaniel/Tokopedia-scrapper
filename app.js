@@ -69,14 +69,13 @@ const getDataPerPage = async (link) => {
 };
 
 app.route('/links').get((req, res) => {
-  req.setTimeout(0)
   (async () => {
     try {
       const loadedBrowser = await browser;
       const page = await loadedBrowser.newPage();
       await page.setViewport({ width: 1920, height: 8000 });
 
-      const { url } = querystring.parse(
+      const { url, lastPage } = querystring.parse(
         req.url.substr(req.url.indexOf('?') + 1)
       );
 
@@ -87,7 +86,7 @@ app.route('/links').get((req, res) => {
       let i = 1;
       let finalLinks = [];
       while (true) {
-        // if(i == 2)  break;
+        if(i == lastPage)  break;
         console.log(`Finding Links From: ${url + '/page/' + i}`);
         await page.goto(url + '/page' + i, {
           waitUntil: 'networkidle0',
@@ -95,22 +94,23 @@ app.route('/links').get((req, res) => {
         });
 
         const result = await page.evaluate(async () => {
-          const noProduct = !!document.querySelector(
-            'h3.css-1tj59kg-unf-heading.e1qvo2ff3'
-          );
-          if (noProduct) return null;
+          // const noProduct = !!document.querySelector(
+          //   'h3.css-1tj59kg-unf-heading.e1qvo2ff3'
+          // );
+          // if (noProduct) return null;
 
           const grid = document.getElementsByClassName('css-tjjb18')[0];
           const res = Array.from(grid.children).map((el) => {
-            try {
+            // try {
               return el.children[0].children[0].children[0].children[0].children[0]
                 .children[0].children[0].href;
-            } catch(e) {
-              return e.message
-            }
+            // } catch(e) {
+              // return e.message
+            // }
           });
           return res;
         });
+        // if()
 
         if (!result) break;
 
@@ -118,6 +118,7 @@ app.route('/links').get((req, res) => {
 
         i++;
       }
+      console.log(finalLinks)
 
       await page.close();
 
