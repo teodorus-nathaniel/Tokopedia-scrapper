@@ -69,6 +69,7 @@ const getDataPerPage = async (link) => {
 };
 
 app.route('/links').get((req, res) => {
+  req.setTimeout(0)
   (async () => {
     try {
       const loadedBrowser = await browser;
