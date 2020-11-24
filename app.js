@@ -88,7 +88,7 @@ app.route('/links').get((req, res) => {
       while (true) {
         if(i == lastPage)  break;
         console.log(`Finding Links From: ${url + '/page/' + i}`);
-        await page.goto(url + '/page' + i, {
+        await page.goto(url + '/page/' + i, {
           waitUntil: 'networkidle0',
           timeout: 0,
         });
