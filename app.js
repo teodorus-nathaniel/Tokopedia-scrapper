@@ -86,7 +86,7 @@ app.route('/links').get((req, res) => {
       let i = 1;
       let finalLinks = [];
       while (true) {
-        if(i == lastPage)  break;
+        if (lastPage && i == lastPage) break;
         console.log(`Finding Links From: ${url + '/page/' + i}`);
         await page.goto(url + '/page/' + i, {
           waitUntil: 'networkidle0',
@@ -94,31 +94,33 @@ app.route('/links').get((req, res) => {
         });
 
         const result = await page.evaluate(async () => {
-          // const noProduct = !!document.querySelector(
-          //   'h3.css-1tj59kg-unf-heading.e1qvo2ff3'
-          // );
-          // if (noProduct) return null;
+          const noProduct = !!document.querySelector(
+            'h3.css-1tj59kg-unf-heading.e1qvo2ff3'
+          );
+          if (noProduct) return null;
 
           const grid = document.getElementsByClassName('css-tjjb18')[0];
           const res = Array.from(grid.children).map((el) => {
-            // try {
-              return el.children[0].children[0].children[0].children[0].children[0]
-                .children[0].children[0].href;
-            // } catch(e) {
-              // return e.message
-            // }
+            try {
+              return el.children[0].children[0].children[0].children[0]
+                .children[0].children[0].children[0].href;
+            } catch (e) {
+              return e.message;
+            }
           });
           return res;
         });
-        // if()
 
-        if (!result) break;
+        if (!result) {
+          console.log('Page not found... Stop finding links...')
+          break;
+        }
 
         finalLinks = [...finalLinks, ...result];
 
         i++;
       }
-      console.log(finalLinks)
+      console.log(finalLinks);
 
       await page.close();
 
