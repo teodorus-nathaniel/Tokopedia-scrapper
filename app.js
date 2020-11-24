@@ -130,16 +130,16 @@ app.route('/links').get((req, res) => {
         const res = await getDataPerPage(link);
         allData.push(res);
 
+        converter.json2csv(allData, (err, csv) => {
+          if (err) {
+            throw err;
+          }
+          fs.mkdir('data');
+          fs.writeFile('data/data.csv', csv);
+        });
+
         // if(i == 5)  break;
       }
-
-      converter.json2csv(allData, (err, csv) => {
-        if (err) {
-          throw err;
-        }
-        fs.mkdir('data');
-        fs.writeFileSync('data/data.csv', csv);
-      });
 
       res.json({
         status: 'success',
