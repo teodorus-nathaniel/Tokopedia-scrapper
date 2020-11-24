@@ -20,6 +20,7 @@ const getDataPerPage = async (link) => {
     page.setUserAgent(
       'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.75 Safari/537.36'
     );
+    console.log(`Get Data from: ${link}`);
 
     await page.goto(link, {
       waitUntil: 'networkidle2',
@@ -38,9 +39,9 @@ const getDataPerPage = async (link) => {
         return acc;
       }, {});
 
-      res.price = res.price.replace('.', '')
-      res.price = res.price.replace('Rp', '')
-      res.weight = res.weight.replace('gr', '')
+      res.price = res.price.replace('.', '');
+      res.price = res.price.replace('Rp', '');
+      res.weight = res.weight.replace('gr', '');
 
       const description = JSON.parse(
         document.querySelectorAll(
@@ -74,7 +75,9 @@ app.route('/links').get((req, res) => {
       const page = await loadedBrowser.newPage();
       await page.setViewport({ width: 1920, height: 8000 });
 
-      const {url} = querystring.parse(req.url.substr(req.url.indexOf('?') + 1))
+      const { url } = querystring.parse(
+        req.url.substr(req.url.indexOf('?') + 1)
+      );
 
       page.setUserAgent(
         'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.75 Safari/537.36'
@@ -84,6 +87,7 @@ app.route('/links').get((req, res) => {
       let finalLinks = [];
       while (true) {
         // if(i == 2)  break;
+        console.log(`Finding Links From: ${url + '/page/' + i}`);
         await page.goto(url + '/page' + i, {
           waitUntil: 'networkidle0',
           timeout: 0,
@@ -96,11 +100,14 @@ app.route('/links').get((req, res) => {
           if (noProduct) return null;
 
           const grid = document.getElementsByClassName('css-tjjb18')[0];
-          const res = Array.from(grid.children).map(
-            (el) =>
-              el.children[0].children[0].children[0].children[0].children[0]
-                .children[0].children[0].href
-          );
+          const res = Array.from(grid.children).map((el) => {
+            try {
+              return el.children[0].children[0].children[0].children[0].children[0]
+                .children[0].children[0].href;
+            } catch(e) {
+              return e.message
+            }
+          });
           return res;
         });
 
@@ -126,7 +133,7 @@ app.route('/links').get((req, res) => {
         if (err) {
           throw err;
         }
-        fs.mkdir('data')
+        fs.mkdir('data');
         fs.writeFileSync('data/data.csv', csv);
       });
 
