@@ -126,7 +126,8 @@ app.route('/links').get((req, res) => {
         if (err) {
           throw err;
         }
-        fs.writeFileSync('data.csv', csv);
+        fs.mkdir('data')
+        fs.writeFileSync('data/data.csv', csv);
       });
 
       res.json({
