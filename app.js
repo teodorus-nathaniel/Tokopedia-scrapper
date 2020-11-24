@@ -1,4 +1,5 @@
 const express = require('express');
+const querystring = require('querystring');
 const fs = require('fs');
 const morgan = require('morgan');
 const puppeteer = require('puppeteer');
@@ -53,7 +54,7 @@ const getDataPerPage = async (link) => {
       ).map((el) => el.children[0].children[0].src);
 
       for (let i = 0; i < 5; i++) {
-        res[`image${i + 1}`] = images[i] || undefined;
+        res[`image${i + 1}`] = images[i] || '';
       }
       return res;
     });
@@ -73,6 +74,8 @@ app.route('/links').get((req, res) => {
       const page = await loadedBrowser.newPage();
       await page.setViewport({ width: 1920, height: 8000 });
 
+      const {url} = querystring.parse(req.url.substr(req.url.indexOf('?') + 1))
+
       page.setUserAgent(
         'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.75 Safari/537.36'
       );
@@ -81,7 +84,7 @@ app.route('/links').get((req, res) => {
       let finalLinks = [];
       while (true) {
         // if(i == 2)  break;
-        await page.goto(URL + i, {
+        await page.goto(url + '/page' + i, {
           waitUntil: 'networkidle0',
           timeout: 0,
         });
