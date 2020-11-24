@@ -75,7 +75,7 @@ app.route('/links').get((req, res) => {
       const page = await loadedBrowser.newPage();
       await page.setViewport({ width: 1920, height: 8000 });
 
-      const { url, lastPage } = querystring.parse(
+      const { url, lastPage, firstPage } = querystring.parse(
         req.url.substr(req.url.indexOf('?') + 1)
       );
 
@@ -83,7 +83,7 @@ app.route('/links').get((req, res) => {
         'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.75 Safari/537.36'
       );
 
-      let i = 1;
+      let i = +firstPage;
       let finalLinks = [];
       while (true) {
         if (lastPage && i == lastPage) break;
