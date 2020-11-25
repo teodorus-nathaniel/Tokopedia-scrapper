@@ -10,7 +10,9 @@ const URL = 'https://www.tokopedia.com/nahjkt/product/page/';
 const app = express();
 app.use(morgan('dev'));
 
-const browser = puppeteer.launch();
+const browser = puppeteer.launch({
+  headless: false
+});
 
 const getDataPerPage = async (link) => {
   try {
@@ -22,10 +24,17 @@ const getDataPerPage = async (link) => {
     );
     console.log(`Get Data from: ${link}`);
 
-    await page.goto(link, {
-      waitUntil: 'networkidle2',
-      timeout: 0,
-    });
+    while(true) {
+      try {
+        await page.goto(link, {
+          waitUntil: 'networkidle2',
+          timeout: 20000,
+        });
+        break;
+      } catch(e) {
+        console.log(e.message)
+      }
+    }
 
     const result = await page.evaluate(async () => {
       const mapper = {
@@ -83,7 +92,7 @@ app.route('/links').get((req, res) => {
         'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/73.0.3683.75 Safari/537.36'
       );
 
-      let i = +firstPage;
+      let i = +firstPage || 1;
       let finalLinks = [];
       while (true) {
         if (lastPage && i == lastPage) break;
@@ -140,7 +149,7 @@ app.route('/links').get((req, res) => {
           });
 
           if (!fs.existsSync('data')) {
-            mkdir('data', makeFile);
+            fs.mkdir('data', makeFile);
           } else {
             makeFile();
           }
